@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>NYT Article Lookup</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1 class="display-3">New York Times Article Search</h1>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="panel panel-primary">
+            <div class="panel-header">
+            </div>
+            <div class="panel-body">
+                <form role="form">
+
+				  	  <!-- Here we create the text box for capturing the search term-->
+					  <div class="form-group">
+					    <label for="search">Search Term:</label>
+					    <input type="text" class="form-control" id="searchTerm">
+					  </div>
+
+					  <!-- Here we capture the number of records that the user wants to retrieve  -->
+					  <div class="form-group">
+					    <label for="pwd">Number of Records to Retrieve:</label>
+						<select class="form-control" id="numRecordsSelect">
+							<option value=1>1</option>
+							<!-- Setting the option for 5 as default -->
+							<option value=5 selected>5</option>
+							<option value=10>10</option>
+						</select>			  
+					  </div>
+
+				  	  <!-- Here we capture the Start Year Parameter-->
+					  <div class="form-group">
+					    <label for="startYear">Start Year (Optional):</label>
+					    <input type="text" class="form-control" id="startYear">
+					  </div>
+
+				  	  <!-- Here we capture the End Year Parameter -->
+					  <div class="form-group">
+					    <label for="endYear">End Year (Optional):</label>
+					    <input type="text" class="form-control" id="endYear">
+					  </div>
+
+					  <!-- Here we have our final submit button -->
+					  <button type="submit" class="btn btn-default" id="runSearch"><i class="fa fa-search"></i>Search</button>
+  					  <button type="button" class="btn btn-default" id="clearAll"><i class="fa fa-trash"></i>Clear Results</button>
+
+					</form>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+		<div class="col-sm-12">
+		<br>
+
+			<!-- This panel will initially be made up of a panel and wells for each of the articles retrieved -->
+			<div class="panel panel-primary">
+
+				<!-- Panel Heading for the retrieved articles box -->
+				<div class="panel-heading">
+					<h3 class="panel-title"><strong><i class="fa fa-table"></i>   Top Articles</strong></h3>
+				</div>
+
+				<!-- This main panel will hold each of the resulting articles -->
+				<div class="panel-body" id="wellSection">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Footer Region -->
+	<div class="row">
+		<div class="col-sm-12">
+			
+			<!-- Line Break followed by closing -->
+			<hr>
+			<h5 class="text-center"><small>Chris Ahn and Brian P. Evans, Based on Code from Ahmed of UCSD Coding Bootcamp <i class="fa fa-heart"></i></small></h5>
+
+		</div>
+	</div>
+	<p id="demo"></p>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+		<script>
+
+			$("#clearAll").on("click", function() {
+				$("#wellSection").empty();
+			});
+
+			$("#runSearch").on("click", function() {
+				event.preventDefault();
+				$("#wellSection").empty();
+				var searchFor = $("#searchTerm").val();
+				var numRecords = $("#numRecordsSelect").val();
+				var url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+				url += '?' + $.param({
+					'api-key': "ecedad52e024481e84dba2476e3280f2",
+					'q': searchFor
+				});
+				console.log("url is " + url);
+
+
+				if ($("#startYear").val().trim() !== "") {
+					url += '&start_date=' + $("#startYear").val().trim() + "0101";
+					console.log("url is now " + url)
+
+				}
+
+				if ($("#endYear").val() !== "") {
+					url += '&end_date=' + $("#endYear").val().trim() + "1231";
+					console.log("url is now " + url)
+				}
+
+
+
+				$.ajax({
+					url: url,
+					method: 'GET',
+				}).done(function(result) {
+					console.log(result);
+					for (var i = 0; i < numRecords; i++) {
+						var timesHeadline = result.response.docs[i].headline.main;
+						console.log(timesHeadline);
+						$("#wellSection").append('<p><a href="' + result.response.docs[i].web_url + '">' + timesHeadline + "</a></p>");
+					}
+				}).fail(function(err) {
+					throw err;
+				});
+			});
+		</script>
+
+</body>
+
+</html>
+
